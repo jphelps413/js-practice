@@ -1,3 +1,6 @@
+//
+// To run this => node closestToEarth.js
+//
 class StarField {
   // Constructs a sized collection of "stars" with random offsets plus the
   // 10 known closest entries from Top10. FWIW, the xyz values are
@@ -115,20 +118,31 @@ class StarsByDistance {
     return this.stars.length;
   }
 
+  strout(star) {
+    return star.name.padStart(18) +
+      star.dist.toFixed(1).padStart(6) +
+      star.x.toFixed(1).padStart(6) +
+      star.y.toFixed(1).padStart(6) +
+      star.z.toFixed(1).padStart(6);
+  }
+
   dump() {
-    for (let i = 0; i < this.stars.length; i += 1) {
-      console.log( this.stars[i] );
+    console.log('[3;0H'); // home the cursor
+    for (let i = 0; i < this.keep; i += 1) {
+      console.log(this.strout(this.stars[i]));
     }
   }
 }
 
-console.log('Generating Star Field Data...');
+console.log('[2J[0;0HGenerating Star Field Data...');
 const StarList = new StarField(1e7);
 const closestStars = new StarsByDistance(10);
 
 console.log(`Find the closest from ${StarList.size()} stars...`);
 for (let i = 0; i < StarList.stars.length; i += 1) {
   closestStars.add(StarList.stars[i]);
+  if (i > 0 && i % 100 === 0) closestStars.dump();
 }
 
 closestStars.dump();
+console.log();
