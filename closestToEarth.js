@@ -24,7 +24,7 @@ class StarField {
 
     // Generate random stars outside the last star in Top10
     const randInt = max => Math.floor(Math.random() * max);
-    const randDelt = (base = 4) => randInt(10) + base;
+    const randDelt = (base = 4) => randInt(1000) + base;
     this.stars = [];
     for (let i = 0; i < size - Top10.length; i += 1) {
       const sid = randInt(1000).toString().padStart(4, '0');
@@ -40,8 +40,8 @@ class StarField {
   }
 
   // Return a size with commas in it for readability.
-  size() {
-    return [...`${this.stars.length}`]
+  size(num = this.stars.length) {
+    return [...`${num}`]
       .reverse()
       .join('')          // There
       .match(/\d{1,3}/g) //  must
@@ -119,17 +119,18 @@ class StarsByDistance {
   }
 
   strout(star) {
-    return star.name.padStart(18) +
+    return star.name.padStart(18) + ' ' +
       star.dist.toFixed(1).padStart(6) +
       star.x.toFixed(1).padStart(6) +
       star.y.toFixed(1).padStart(6) +
       star.z.toFixed(1).padStart(6);
   }
 
-  dump() {
-    console.log('[3;0H'); // home the cursor
+  dump(scount) {
+    // home the cursor on line 3 before logging the stars.
+    console.log(`[3;0HStars Searched: ${StarList.size(scount)}\n`)
     for (let i = 0; i < this.keep; i += 1) {
-      console.log(this.strout(this.stars[i]));
+      console.log(`${this.strout(this.stars[i])}[K`);
     }
   }
 }
@@ -141,8 +142,8 @@ const closestStars = new StarsByDistance(10);
 console.log(`Find the closest from ${StarList.size()} stars...`);
 for (let i = 0; i < StarList.stars.length; i += 1) {
   closestStars.add(StarList.stars[i]);
-  if (i > 0 && i % 100 === 0) closestStars.dump();
+  if (i > 0 && i % 100 === 0) closestStars.dump(i);
 }
 
-closestStars.dump();
+closestStars.dump(StarList.size());
 console.log();
