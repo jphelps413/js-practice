@@ -1,6 +1,25 @@
 //
 // To run this => node closestToEarth.js
 //
+// Due to node being single threaded, a better solution would be to
+// implement this in Java or C++ in order to better utilize multi-core
+// machines.
+//
+class Util {
+  // Return a size with commas in it for readability. There has to be a
+  // better way to do this.
+  static addCommas(num) {
+    return [...`${num}`]
+      .reverse()
+      .join('')
+      .match(/\d{1,3}/g)
+      .join(',')
+      .split('')
+      .reverse()
+      .join('');
+  }
+}
+
 class StarField {
   // Constructs a sized collection of "stars" with random offsets plus the
   // 10 known closest entries from Top10. FWIW, the xyz values are
@@ -39,17 +58,7 @@ class StarField {
     }
   }
 
-  // Return a size with commas in it for readability.
-  size(num = this.stars.length) {
-    return [...`${num}`]
-      .reverse()
-      .join('')          // There
-      .match(/\d{1,3}/g) //  must
-      .join(',')         //   be a
-      .split('')         //    better
-      .reverse()         //     way...
-      .join('');
-  }
+  length() { return this.stars.length; }
 }
 
 // This class will accumulate the closest number of stars specified at
@@ -118,7 +127,8 @@ class StarsByDistance {
     return this.stars.length;
   }
 
-  strout(star) {
+  static strout(star) {
+    // eslint-disable-next-line prefer-template
     return star.name.padStart(18) + ' ' +
       star.dist.toFixed(1).padStart(6) +
       star.x.toFixed(1).padStart(6) +
@@ -128,22 +138,24 @@ class StarsByDistance {
 
   dump(scount) {
     // home the cursor on line 3 before logging the stars.
-    console.log(`[3;0HStars Searched: ${StarList.size(scount)}\n`)
+    /* eslint-disable no-console */
+    console.log(`[3;0HStars Searched: ${Util.addCommas(scount)}\n`);
     for (let i = 0; i < this.keep; i += 1) {
-      console.log(`${this.strout(this.stars[i])}[K`);
+      console.log(`${StarsByDistance.strout(this.stars[i])}[K`);
     }
   }
 }
 
+/* eslint-disable no-console */
 console.log('[2J[0;0HGenerating Star Field Data...');
 const StarList = new StarField(1e7);
 const closestStars = new StarsByDistance(10);
 
-console.log(`Find the closest from ${StarList.size()} stars...`);
+console.log(`Find the closest from ${Util.addCommas(StarList.length())} stars...`);
 for (let i = 0; i < StarList.stars.length; i += 1) {
   closestStars.add(StarList.stars[i]);
   if (i > 0 && i % 100 === 0) closestStars.dump(i);
 }
 
-closestStars.dump(StarList.size());
+closestStars.dump(Util.addCommas(StarList.length()));
 console.log();
